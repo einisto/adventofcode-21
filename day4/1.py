@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import re
 
-# spent way too long with this one
+# first version got the right answer even though it 
+# didn't check horizontal wins correctly lol
 
 def ver(l):
     start = [0, 1, 2, 3, 4]
@@ -26,8 +27,8 @@ def hor(l):
     for i in start:
         if i in l:
             try:
-                t = l[i + 5]
-                sub = l[i:i + 5]
+                test = l[l.index(i) + 4]
+                sub = l[l.index(i) : l.index(test)]
                 if sub == list(range(min(sub), max(sub) + 1)):
                     return True
             except IndexError:
