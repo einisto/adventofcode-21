@@ -1,62 +1,51 @@
 #!/usr/bin/env python3
 import re
 
-# first version got the right answer even though it 
-# didn't check horizontal wins correctly lol
+class Board:
+    def __init__(self, grid):
+        self.grid = grid
+        self.skippable = False
+        rows = []
+        for i in range(5, 26, 5):
+            rows.append(grid[i-5:i])
+        cols = []
+        for i in range(0, 5):
+            cols.append(grid[i::5])
+        
+        self.total = [x for x in rows + cols]
 
-def ver(l):
-    start = [0, 1, 2, 3, 4]
-    if len(l) < 5 or not any(i in l for i in start):
+    def win(self, called):
+        for l in self.total:
+            if (all(x in called for x in l)):
+                self.skippable = True
+                return True
         return False
-    c = 1
-    for i in start:
-        if i in l:
-            for n in range(5, 21, 5):
-                if (n + i) in l:
-                    c += 1
-        if c == 5:
-            return True
-        else:
-            c = 1
-    return False
 
-def hor(l):
-    start = [0, 5, 10, 15, 20]
-    if len(l) < 5 or not any(i in l for i in start):
-        return False
-    for i in start:
-        if i in l:
-            try:
-                test = l[l.index(i) + 4]
-                sub = l[l.index(i) : l.index(test)]
-                if sub == list(range(min(sub), max(sub) + 1)):
-                    return True
-            except IndexError:
-                continue
-    return False
+    def skip(self):
+        return self.skippable
+
+    def score(self, called):
+        unmarked = list(set(self.grid) - set(called))
+        unmarked = [int(x) for x in unmarked]
+        return unmarked
 
 with open("input.txt") as f:
     order = f.readline().strip().split(",")
     grids = f.read().split("\n\n")
 
-# boards as 2d-list
 boards = []
 for g in grids:
     g = re.sub(r"\n", " ", g)
-    boards.append(g.split())
+    boards.append(Board(g.split()))
 
-d = {i: [] for i in range(0, len(boards))}
-
+called = []
 for num in order:
-    for i in range(0, len(boards)):
-        b = boards[i]
-        if num in b:
-            index = b.index(num)
-            d[i].append(index)
-            d[i].sort()
-            if ver(d[i]) or hor(d[i]):
-                for rm in reversed(d[i]):
-                    del b[rm]
-                b = [int(x) for x in b]
-                print(sum(b) * int(num))
-                quit()
+    called.append(num)
+    for b in boards:
+        if b.skip():
+            continue
+        elif b.win(called):
+            unmarked = b.score(called)
+            print(sum(unmarked) * int(num))
+            quit()
+
