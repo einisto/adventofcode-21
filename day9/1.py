@@ -16,7 +16,6 @@ def low_point(x, y):
     if x != len(table[y]) - 1:
         r = int(table[y][x+1])
 
-    risk_level = 0
     for v in [t, b, l, r]:
         if v is not None:
             if v <= value: return 0
